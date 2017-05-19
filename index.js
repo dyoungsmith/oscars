@@ -6,6 +6,7 @@ rp('http://oscars.yipitdata.com/')
     let detailPromises = [],
         winners = [];
 
+    // Extract year and title for each winner
     nomsByYr.forEach(yr => {
         for (let i = 0; i < yr.films.length; i++) {
             let currFilm = yr.films[i];
@@ -21,6 +22,7 @@ rp('http://oscars.yipitdata.com/')
         }
     });
 
+    // Resolve budget info for all winners
     return Promise.all(detailPromises)
     .then(res => {
         let budgets = [];
@@ -33,13 +35,14 @@ rp('http://oscars.yipitdata.com/')
     })
     .then(budgets => {
         return { budgets, winners };
-    });
+    })
+    .catch(err => console.error(err));
 })
 .then(({ budgets, winners }) => {
     let budgCount = 0,
         totalBudg = 0;
 
-    // Condense the winner information
+    // Condense the winner information into one object
     winners.forEach((winner, i) => {
         // YEAR: Clean up year string
         const year = winner.year;
@@ -50,11 +53,11 @@ rp('http://oscars.yipitdata.com/')
 
         // BUDGET: Transform budget and add to winner
         const budg = budgets[i];
-        const decimal = /\d+\.\d+/;    // '1.2', '16.5' (ranges limited to min)
-        const mil = /\d+,\d+,\d+/;  // '3,456,432'
-        const thou = /\d+,\d+/;  // '3,456'
+        const decimal = /\d+\.\d+/;    // matches '1.2', '16.5' (ranges limited to min)
+        const mil = /\d+,\d+,\d+/;  // matches '3,456,432'
+        const thou = /\d+,\d+/;  // matches '3,456'
         const short = /\d+/;   // '15 million' matches '15'
-        const million = /million/i;
+        const million = /million/i; // 'million' (for multiplication purposes)
 
         if (budg) {
             let numericalBudg;
@@ -69,7 +72,7 @@ rp('http://oscars.yipitdata.com/')
                 numericalBudg = Number(budgMatch[0]);
                 if (budg.match(million)) numericalBudg *= 1000000;
             }
-            // Convert GBP >> USD (1.29 usd === 1 gbp)
+            // Convert GBP to USD (1.29 usd === 1 gbp)
             if (budg.match(/£/)) {
                 numericalBudg *= 1.29;
             }
@@ -78,11 +81,11 @@ rp('http://oscars.yipitdata.com/')
             winner.budget = numericalBudg.toLocaleString('en');
         }
         else { winner.budget = budg; }
-        console.log(`${winner.year}\t${winner.title} ($${winner.budget})`);
+        console.log(`${winner.year}\t${winner.title} (${winner.budget ? `$${winner.budget}` : 'No budget available'})`);
     });
 
     const avgBudg = Math.floor(totalBudg / budgCount).toLocaleString('en');
-    console.log(`\nAverage winner budget for ${budgCount} films: $${avgBudg}`);
+    console.log(`\nAverage budget for ${budgCount} winners: $${avgBudg}`);
 })
 .catch(err => console.error(err));
 

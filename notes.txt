@@ -31,5 +31,3 @@ Structure of http://oscars.yipitdata.com/
         },
         { ... }
     ]
-
-In addition to printing to the screen, I want to write the answers to a new results file
