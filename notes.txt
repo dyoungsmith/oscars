@@ -1,0 +1,35 @@
+Goal: 
+    - print 'Year Title Budget' for each year's winner
+    - print out the average budget for all winners
+        - sum of all budgets
+        - number of films
+
+
+Structure of http://oscars.yipitdata.com/
+    - results array contains objects for each year's nominees ('films' array)
+    - relevant info for each film:
+        - 'Detail URL' (follow this for budget) // going to have problems with this space
+            - { Budget: "US$ 2 million [ 4 ]" } // will have to get this to numbers for maths
+        - 'Film' (the title)
+        - 'Winner' (bool)   // first one looks like the winner always (yay)
+    - relevant info for each year
+        - 'year' (this is a string: '1927 / 28 [A] (1st)')
+        - the parentheses denote which movie it is (although, not sure if this is trustworthy)
+            - could potentially use for avg, but I'd rather trust my own work, ha
+
+    results: [
+        { 
+            year: '1927 / 28 [A] (1st)',
+            films: [
+                {
+                    Detail URL: 'http:...',
+                    Film: 'Title',
+                    Winner: true
+                },
+                { ... }
+            ]
+        },
+        { ... }
+    ]
+
+In addition to printing to the screen, I want to write the answers to a new results file

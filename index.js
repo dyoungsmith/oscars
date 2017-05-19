@@ -1,4 +1,3 @@
-const request = require('request');
 const rp = require('request-promise');
 
 rp('http://oscars.yipitdata.com/')
@@ -12,8 +11,7 @@ rp('http://oscars.yipitdata.com/')
             let currFilm = yr.films[i];
 
             if (currFilm.Winner) {
-                detailPromises.push(rp(currFilm['Detail URL']));
-                
+                detailPromises.push(rp(currFilm['Detail URL']));    // Build array for Promise.all
                 winners.push({
                     year: yr.year,
                     title: currFilm.Film
@@ -38,7 +36,19 @@ rp('http://oscars.yipitdata.com/')
     });
 })
 .then(({ budgets, winners }) => {
-    console.log('DEETS: ', budgets, 'WINNERS: ', winners);
+    // Condense the winner information
+    winners.forEach((winner, i) => {
+        // Clean up year string
+        const yrRE = /^\d{4}/;  // one year: '2010'
+        const yrRangeRE = /^\d{4}\s\/\s\d{2}/;  // year range: '1927 / 28'
+        let yr = winner.year.match(yrRangeRE) || winner.year.match(yrRE);
+        winner.year = yr[0];
+
+        // Transform budget and add to winner
+        // str >> Number; GBP >> USD
+        winner.budget = budgets[i];
+    });
+    console.log('WINNERS: ', winners);
 })
 .catch(err => console.error(err));
 
