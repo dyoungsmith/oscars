@@ -36,6 +36,9 @@ rp('http://oscars.yipitdata.com/')
     });
 })
 .then(({ budgets, winners }) => {
+    let budgCount = 0,
+        totalBudg = 0;
+
     // Condense the winner information
     winners.forEach((winner, i) => {
         // YEAR: Clean up year string
@@ -47,40 +50,38 @@ rp('http://oscars.yipitdata.com/')
 
         // BUDGET: Transform budget and add to winner
         // str >> Number; GBP >> USD
-        let budgCount = 0,
-            totalBudg = 0;
         const budg = budgets[i];
         const decimal = /\d+\.\d+/;    // '1.2', '16.5' (ranges limited to min)
         const mil = /\d+,\d+,\d+/;  // '3,456,432'
         const thou = /\d+,\d+/;  // '3,456'
         const short = /\d+/;   // '15 million' matches '15'
         const million = /million/i;
-        const usd = /us/i;
 
         if (budg) {
             let numericalBudg;
             budgCount++;
             // grab numerical portion
-            // if (budg.match(decimal)) {
-            //     numericalBudg = Number(budg.match(decimal)[0].substring(1));
-            //     if (budg.match(million)) numericalBudg *= 1000000;
-
-            // }
             if (budg.match(mil) || budg.match(thou)) {
-                numericalBudg = budg;
+                const budgMatch = budg.match(mil) || budg.match(thou);
+                numericalBudg = Number(budgMatch[0].split(',').join(''));
             }
             else if (budg.match(decimal) || budg.match(short)) {
                 const budgMatch = budg.match(decimal) || budg.match(short);
                 numericalBudg = Number(budgMatch[0]);
                 if (budg.match(million)) numericalBudg *= 1000000;
-                // Convert GBP >> USD
             }
+            // Convert GBP >> USD (1.29 usd === 1 gbp)
+            if (budg.match(/£/)) {
+                numericalBudg *= 1.29;
+            }
+
             totalBudg += numericalBudg;
             winner.budget = numericalBudg;
         }
         else { winner.budget = budg; }
-        const avgBudg = totalBudg / budgCount;
     });
+
+    const avgBudg = totalBudg / budgCount;
 
     console.log('WINNERS: ', winners);
 })
