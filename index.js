@@ -75,15 +75,14 @@ rp('http://oscars.yipitdata.com/')
             }
 
             totalBudg += numericalBudg;
-            winner.budget = numericalBudg;
+            winner.budget = numericalBudg.toLocaleString('en');
         }
         else { winner.budget = budg; }
-        console.log(`${winner.year}\t${winner.title}\t$${winner.budget}`);
+        console.log(`${winner.year}\t${winner.title} ($${winner.budget})`);
     });
 
-    const avgBudg = totalBudg / budgCount;
-    console.log(`\nAverage winner budget for ${budgCount} films: $${Math.floor(avgBudg)}`);
-    // console.log('WINNERS: ', winners);
+    const avgBudg = Math.floor(totalBudg / budgCount).toLocaleString('en');
+    console.log(`\nAverage winner budget for ${budgCount} films: $${avgBudg}`);
 })
 .catch(err => console.error(err));
 
