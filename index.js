@@ -1,5 +1,6 @@
 const request = require('request');
 const rp = require('request-promise');
+const axios = require('axios');
 
 rp('http://oscars.yipitdata.com/')
 .then(res => JSON.parse(res).results)
@@ -12,24 +13,38 @@ rp('http://oscars.yipitdata.com/')
         for (let i = 0; i < yr.films.length; i++) {
             let currFilm = yr.films[i];
             if (currFilm.Winner) {
-                detailPromises.push(request(currFilm['Detail URL']));
-                winners.push({
-                    year: yr.year,
-                    title: currFilm.Film
-                });
+                // detailPromises.push(axios.get(currFilm['Detail URL']));
+                axios.get(currFilm['Detail URL'])
+                .then(res => JSON.parse(res.data).Budget)
+                .then(budget => {
+                    winners.push({
+                        year: yr.year,
+                        title: currFilm.Film,
+                        budget
+                    });
+                })
+                .catch(err => console.error(err));
                 break;
             }
         }
+        console.log('WINNERS: ', winners);
     });
 
-    return Promise.all(detailPromises)
-    .then(deets => {
-        return { details: deets, winners }
-    });
+    // let detailProms = Promise.all(detailPromises).then(res;
+
+    // console.log('PROMS: ', detailProms);
+
+    // return Promise.all(detailPromises)
+    // // .then(res => JSON.parse(res))
+    // .then(deets => {
+    //     console.log('FIRST DEETS', deets[0])
+    //     return { details: deets, winners }
+    // });
 })
-.then(({ details, winners }) => {
-    console.log('DEETS: ', details, 'WINNERS: ', winners);
-})
+// .then(({ details, winners }) => {
+//     // console.log('DEETS: ', details[0].results);
+//     // console.log('DEETS: ', details, 'WINNERS: ', winners);
+// })
 .catch(err => console.error(err));
 
 // request('http://oscars.yipitdata.com/', (err, res) => {
