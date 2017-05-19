@@ -49,7 +49,6 @@ rp('http://oscars.yipitdata.com/')
         winner.year = yrMatches[0];
 
         // BUDGET: Transform budget and add to winner
-        // str >> Number; GBP >> USD
         const budg = budgets[i];
         const decimal = /\d+\.\d+/;    // '1.2', '16.5' (ranges limited to min)
         const mil = /\d+,\d+,\d+/;  // '3,456,432'
@@ -79,11 +78,12 @@ rp('http://oscars.yipitdata.com/')
             winner.budget = numericalBudg;
         }
         else { winner.budget = budg; }
+        console.log(`${winner.year}\t${winner.title}\t$${winner.budget}`);
     });
 
     const avgBudg = totalBudg / budgCount;
-
-    console.log('WINNERS: ', winners);
+    console.log(`\nAverage winner budget for ${budgCount} films: $${Math.floor(avgBudg)}`);
+    // console.log('WINNERS: ', winners);
 })
 .catch(err => console.error(err));
 
